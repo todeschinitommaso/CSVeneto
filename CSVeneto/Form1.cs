@@ -26,40 +26,39 @@ namespace CSVeneto
         private void searchbutton_Click(object sender, EventArgs e)
         {
             string cerca = textBox1.Text.ToUpper();
-            namebox.Text = (Ricerca(filename, cerca));
+            namebox.Text = (Search(path, cerca));
         }
 
-        public string filename = "veneto_verona.csv";
+        public string path = "veneto_verona.csv";
 
-        static string Ricerca(string filename, string nomecercato)
+        static string Search(string filename, string name)
         {
             string line;
             var f = new FileStream(filename, FileMode.Open, FileAccess.ReadWrite); //accesso al file binario 
             BinaryReader reader = new BinaryReader(f);
             BinaryWriter writer = new BinaryWriter(f);
 
-            int righetot = Convert.ToInt32(f.Length); //byte totali
-            int lunghezzariga = 528;
-            righetot /= 528; //numero record
+            int totrecord = Convert.ToInt32(f.Length); //byte totali
+            totrecord /= 528; //numero record
 
             string result;
 
             int lung = Convert.ToInt32(f.Length);
-            int i = 0, j = righetot - 1, m, pos = -1;
+            int i = 0, j = totrecord - 1, m, pos = -1;
 
             do //ricerca dicotomica
             {
                 m = (i + j) / 2;
-                f.Seek(m * lunghezzariga, SeekOrigin.Begin);
-                line = Encoding.ASCII.GetString(reader.ReadBytes(lunghezzariga));
+                f.Seek(m * 528, SeekOrigin.Begin);
+                line = Encoding.ASCII.GetString(reader.ReadBytes(528));
                 result = FromString(line, 0);
 
-                if (myCompare(result, nomecercato) == 0)
+                if (myCompare(result, name) == 0)
                 {
                     pos = m;
                 }
 
-                else if (myCompare(result, nomecercato) == -1)
+                else if (myCompare(result, name) == -1)
                 {
                     i = m + 1;
                 }
@@ -74,12 +73,12 @@ namespace CSVeneto
 
             if (pos == -1)
             {
-                throw new Exception("campo non trovato");
+                throw new Exception("Comune non trovato");
             }
-               
-            string fine = FromString(line, 7);
+
+            string end = FromString(line, 7);
             f.Close();
-            return fine;
+            return end;
 
         }
 
@@ -90,23 +89,23 @@ namespace CSVeneto
                 return 0;
             }
 
-            char[] char1 = stringa1.ToCharArray();
-            char[] char2 = stringa2.ToCharArray();
-            int l = char1.Length;
+            char[] c1 = stringa1.ToCharArray();
+            char[] c2 = stringa2.ToCharArray();
+            int l = c1.Length;
 
-            if (char2.Length < l) //l = lunghezza minore
+            if (c2.Length < l) //l = lunghezza minore
             {
-                l = char2.Length;
+                l = c2.Length;
             }
 
             for (int i = 0; i < l; i++)
             {
-                if (char1[i] < char2[i])
+                if (c1[i] < c2[i])
                 {
                     return -1;
                 }
 
-                if (char1[i] > char2[i])
+                if (c1[i] > c2[i])
                 {
                     return 1;
                 }
