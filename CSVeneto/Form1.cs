@@ -27,9 +27,60 @@ namespace CSVeneto
         {
             string cerca = textBox1.Text.ToUpper();
             namebox.Text = (Search(path, cerca));
+            posbox.Text = Convert.ToString((SearchPos(path, cerca)));
         }
 
         public string path = "veneto_verona.csv";
+
+        static int SearchPos(string filename, string name)
+        {
+            string line;
+            var f = new FileStream(filename, FileMode.Open, FileAccess.ReadWrite); //accesso al file binario 
+            BinaryReader reader = new BinaryReader(f);
+            BinaryWriter writer = new BinaryWriter(f);
+
+            int totrecord = Convert.ToInt32(f.Length); //byte totali
+            totrecord /= 528; //numero record
+
+            string result;
+
+            int lung = Convert.ToInt32(f.Length);
+            int i = 0, j = totrecord - 1, m, pos = -1;
+
+            do //ricerca dicotomica
+            {
+                m = (i + j) / 2;
+                f.Seek(m * 528, SeekOrigin.Begin);
+                line = Encoding.ASCII.GetString(reader.ReadBytes(528));
+                result = FromString(line, 0);
+
+                if (myCompare(result, name) == 0)
+                {
+                    pos = m;
+                }
+
+                else if (myCompare(result, name) == -1)
+                {
+                    i = m + 1;
+                }
+
+                else
+                {
+                    j = m - 1;
+                }
+
+
+            } while (i <= j && pos == -1);
+
+            if (pos == -1)
+            {
+                throw new Exception("Comune non trovato");
+            }
+
+            int end = pos + 1;
+            f.Close();
+            return end;
+        }
 
         static string Search(string filename, string name)
         {
